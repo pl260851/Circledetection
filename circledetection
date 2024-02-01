@@ -1,0 +1,42 @@
+import cv2
+import numpy as np
+
+# Load the image using the provided path
+image_path = '/Users/pl260851/Downloads/IMG_2728.jpg'  # Updated path to the uploaded image
+
+image = cv2.imread(image_path, cv2.IMREAD_COLOR)
+
+  # Check if the image was loaded
+if image is None:
+    print("Error: Image not found. Check the file path.")
+else:
+    # Convert to grayscale
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+  
+    # Apply Gaussian blur
+    gray_blurred = cv2.GaussianBlur(gray, (9, 9), 0)
+
+    # Use Canny edge detection before Hough Circle Transform
+    edges = cv2.Canny(gray_blurred, 100, 200)
+
+    # Detect circles
+    detected_circles = cv2.HoughCircles(edges, cv2.HOUGH_GRADIENT, 1, 20, param1=100, param2=50, minRadius=1, maxRadius=0)
+
+    # Draw circles and overlay a line
+    if detected_circles is not None:
+        print(f"Detected {len(detected_circles[0])} circles")
+        detected_circles = np.round(detected_circles[0, :]).astype("int")
+        for (x, y, r) in detected_circles:
+            # Draw the circle
+            cv2.circle(image, (x, y), r, (0, 255, 0), 4)
+
+            # Draw a small red circle at the center
+            cv2.circle(image, (x, y), 1, (0, 0, 255), 3)
+
+    else:
+        print("No circles detected.")
+
+    # Always show the result
+    cv2.imshow("Result", image)
+    cv2.waitKey(0)
+
